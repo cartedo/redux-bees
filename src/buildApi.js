@@ -2,11 +2,15 @@ import request from './request';
 import { isRequestLoading } from './selectors';
 import applyUrlWithPlaceholders from './applyUrlWithPlaceholders';
 
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+
 const pendingPromises = {};
 
 const defaultConfigure = (options) => options;
 const defaultAfterResolve = (result) => Promise.resolve(result);
 const defaultAfterReject = (result) => Promise.reject(result);
+const defaultBeforeRequest = (...args) => args;
 
 export default function buildApi(endpoints, config = {}) {
   const {
@@ -15,6 +19,7 @@ export default function buildApi(endpoints, config = {}) {
     configureHeaders = defaultConfigure,
     afterResolve = defaultAfterResolve,
     afterReject = defaultAfterReject,
+    beforeRequest = defaultBeforeRequest,
   } = config;
 
   return Object.keys(endpoints).reduce((acc, key) => {
@@ -64,11 +69,11 @@ export default function buildApi(endpoints, config = {}) {
         return pendingPromises[promiseId];
       }
 
-      const req = request(
+      const req = request(...beforeRequest(
         baseUrl,
-        applyUrlWithPlaceholders(path, placeholders),
+        applyUrlWithPlaceholders(path, placeholders, noEncode),
         configureOptions(augmentedOptions)
-      );
+      ));
 
       const promise = req
         .then(afterResolve)
