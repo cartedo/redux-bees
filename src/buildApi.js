@@ -71,7 +71,7 @@ export default function buildApi(endpoints, config = {}) {
 
       const req = request(...beforeRequest(
         baseUrl,
-        applyUrlWithPlaceholders(path, placeholders, noEncode),
+        applyUrlWithPlaceholders(path, placeholders),
         configureOptions(augmentedOptions)
       ));
 
